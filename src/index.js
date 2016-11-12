@@ -4,6 +4,10 @@ import mongoose from 'mongoose';
 const log = new debug('smooth:log');
 const Schema = mongoose.Schema;
 
+const ensure = (data, errMessage) => {
+  if (!data) throw new Error(errMessage);
+};
+
 class Smooth {
   constructor (schema, options) {
     /*
@@ -39,19 +43,16 @@ class Smooth {
       this.options[key] = options[key];
     }
 
-    if (!this.options.name) {
-      this.error('ENONAME');
-    }
+    ensure(this.options.mongooseAddr, 'ENOADDR');
+    ensure(this.options.name, 'ENONAME');
+
+    mongoose.connect(this.options.mongooseAddr);
 
     this.schema = new Schema(schema);
-
     mongoose.model(this.options.name, this.schema);
+
   }
 
-  error (err) {
-    throw new Error(err);
-  }
-  
   register (app, path) {
     /*
      * Register function
