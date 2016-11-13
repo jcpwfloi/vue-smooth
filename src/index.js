@@ -69,6 +69,12 @@ export default class Smooth {
   }
 
   checkPrivilege (priv, req) {
+    /*
+     * Privilege Authorization
+     * @param{String} priv a letter in {C, R, U, D} that represents the privilege division
+     * @param{Express Request} req
+     * @return{Boolean} whether it's available for user to perform a specific action
+     */
     log(`Checking "${priv}" privilege.`);
     log(`Result: ${this.options.privilege[priv](req)}`);
     return this.options.privilege[priv](req);
@@ -157,8 +163,11 @@ export default class Smooth {
     });
   }
 
-
   result (doc, req, res) {
+    /*
+     * Returns result to client
+     * TODO: add hooks
+     */
     res.json(doc);
   }
 }
