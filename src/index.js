@@ -1,14 +1,14 @@
 import debug from 'debug';
 import mongoose from 'mongoose';
 
-const log = new debug('smooth:log');
+const log = debug('smooth:log');
 const Schema = mongoose.Schema;
 
 const ensure = (data, errMessage) => {
   if (!data) throw new Error(errMessage);
 };
 
-class Smooth {
+export default class Smooth {
   constructor (schema, options) {
     /*
      * Constructor of Smooth Object
@@ -68,7 +68,7 @@ class Smooth {
   }
 
   checkPrivilege (priv, req) {
-    return this.options[priv](req);
+    return this.options.privilege[priv](req);
   }
 
   routerGet (req, res) {
@@ -77,7 +77,9 @@ class Smooth {
      * @param{Express Request} req
      * @param{Express Response} res
      */
-    if (!this.checkPrivilege('R', req)) return;
+    if (!this.checkPrivilege('R', req)) {
+      return;
+    }
 
     this.Mongoose.find({}, (err, doc) => {
       this.result(doc, req, res);
@@ -90,7 +92,9 @@ class Smooth {
      * @param{Express Request} req
      * @param{Express Response} res
      */
-    if (!this.checkPrivilege('R'), req) return;
+    if (!this.checkPrivilege('R'), req) {
+      return;
+    }
 
     this.Mongoose.findOne({_id: req.body._id}, (err, doc) => {
       this.result(doc, req, res);
@@ -103,7 +107,9 @@ class Smooth {
      * @param{Express Request} req
      * @param{Express Response} res
      */
-    if (!this.checkPrivilege('D'), req) return;
+    if (!this.checkPrivilege('D'), req) {
+      return;
+    }
 
     this.Mongoose.remove({_id: req.body._id}, (err, doc) => {
       this.result(doc, req, res);
@@ -116,7 +122,9 @@ class Smooth {
      * @param{Express Request} req
      * @param{Express Response} res
      */
-    if (!this.checkPrivilege('U'), req) return;
+    if (!this.checkPrivilege('U'), req) {
+      return;
+    }
 
     this.Mongoose.update({_id: req.body._id}, req.body.upd, (err, doc) => {
       this.result(doc, req, res);
@@ -124,4 +132,3 @@ class Smooth {
   }
 }
 
-module.exports = Smooth;
