@@ -49,6 +49,7 @@ export default class Smooth {
     mongoose.connect(this.options.mongooseAddr);
 
     this.schema = new Schema(schema);
+    log(`Registering Mongoose model ${this.options.name}, schema: ${JSON.stringify(this.schema)}`);
     this.Mongoose = mongoose.model(this.options.name, this.schema);
   }
 
@@ -64,9 +65,12 @@ export default class Smooth {
     app.post(`${path}/getOne`, this.routerGetOne.bind(this));
     app.post(`${path}/remove`, this.routerRemove.bind(this));
     app.post(`${path}/update`, this.routerUpdate.bind(this));
+    app.post(`${path}/add`, this.routerAdd.bind(this));
   }
 
   checkPrivilege (priv, req) {
+    log(`Checking "${priv}" privilege.`);
+    log(`Result: ${this.options.privilege[priv](req)}`);
     return this.options.privilege[priv](req);
   }
 
@@ -91,7 +95,7 @@ export default class Smooth {
      * @param{Express Request} req
      * @param{Express Response} res
      */
-    if (!this.checkPrivilege('R'), req) {
+    if (!this.checkPrivilege('R', req)) {
       return;
     }
 
@@ -106,7 +110,7 @@ export default class Smooth {
      * @param{Express Request} req
      * @param{Express Response} res
      */
-    if (!this.checkPrivilege('D'), req) {
+    if (!this.checkPrivilege('D', req)) {
       return;
     }
 
@@ -121,13 +125,41 @@ export default class Smooth {
      * @param{Express Request} req
      * @param{Express Response} res
      */
-    if (!this.checkPrivilege('U'), req) {
+    if (!this.checkPrivilege('U', req)) {
       return;
     }
 
     this.Mongoose.update({_id: req.body._id}, req.body.upd, (err, doc) => {
       this.result(doc, req, res);
     });
+  }
+
+  routerAdd (req, res) {
+    /*
+     * Add support for CRUD
+     * @param{Express Request} req
+     * @param{Express Response} res
+     */
+    log(`Adding data ${JSON.stringify(req.body)} to the schema`);
+
+    if (!this.checkPrivilege('C', req)) {
+      return;
+    }
+
+    log('Privilege check passed');
+
+    var data = new this.Mongoose(req.body);
+
+    log(`parsed data: ${JSON.stringify(data)}`);
+
+    data.save((doc) => {
+      this.result(doc, req, res);
+    });
+  }
+
+
+  result (doc, req, res) {
+    res.json(doc);
   }
 }
 
