@@ -49,8 +49,7 @@ export default class Smooth {
     mongoose.connect(this.options.mongooseAddr);
 
     this.schema = new Schema(schema);
-    mongoose.model(this.options.name, this.schema);
-
+    this.Mongoose = mongoose.model(this.options.name, this.schema);
   }
 
   register (app, path) {
@@ -61,10 +60,10 @@ export default class Smooth {
      */
     log(`Registering smooth Object to ${path}`);
     
-    app.post(`${path}/get`, this.routerGet);
-    app.post(`${path}/getOne`, this.routerGetOne);
-    app.post(`${path}/remove`, this.routerRemove);
-    app.post(`${path}/update`, this.routerUpdate);
+    app.post(`${path}/get`, this.routerGet.bind(this));
+    app.post(`${path}/getOne`, this.routerGetOne.bind(this));
+    app.post(`${path}/remove`, this.routerRemove.bind(this));
+    app.post(`${path}/update`, this.routerUpdate.bind(this));
   }
 
   checkPrivilege (priv, req) {
